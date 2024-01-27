@@ -1,4 +1,7 @@
-
+using Microsoft.AspNetCore.Mvc.Razor;
+using Microsoft.Extensions.Localization;
+using Microsoft.AspNetCore.Localization;
+using System.Globalization;
 
 
 namespace TryResourceFiles
@@ -9,15 +12,23 @@ namespace TryResourceFiles
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            
+            builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+            // Add services to the container.
 
-            builder.Services.AddControllersWithViews();
+            builder.Services.AddControllersWithViews()
+                .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix)
+                .AddDataAnnotationsLocalization();
 
-            
+            builder.Services.Configure<RequestLocalizationOptions>(options =>
+            {
+                var SupportedCultures = new[] { new CultureInfo("en-US"), new CultureInfo("ar-EG") };
+                options.DefaultRequestCulture = new RequestCulture(SupportedCultures[1]);
+                options.SupportedUICultures = SupportedCultures;
+            });
 
             var app = builder.Build();
             
-            
+            app.UseRequestLocalization();
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
